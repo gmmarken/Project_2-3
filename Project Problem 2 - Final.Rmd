@@ -1,11 +1,14 @@
 ---
-title: "Project Problem 2 - Final"
+title: "Untitled"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+# Problem
+We are attempting to predict if a person is likely to have be a high risk when we lend them money.
+
+We are analyzing a dataset with over 30,000 entries of previous customers and their risk level for Stark Enterprises. We are building a decision tree with that data and using it for our predictions. 
+
+This data comprises dozens of variables about previous customers who applied for credit. We narrowed the variables down to a small handful we thought would be useful. We chose CNT_CHILDREN, AMT_INCOME_TOTAL, AMT_CREDIT, AMT_ANNUITY,    AMT_GOODS_PRICE, and DAYS_EMPLOYED as our variables. 
 
 ```{r}
 library(rpart)
@@ -68,7 +71,6 @@ train_df_balanced <- ROSE(TARGET ~  CNT_CHILDREN
                           + AMT_GOODS_PRICE 
                           + DAYS_EMPLOYED,
                           data = train_df, seed = 1331)$data
-
 ```
 
 ```{r}
@@ -89,10 +91,14 @@ prp(class_tr)
 rpart.plot(class_tr, type = 5)
 rpart.rules(class_tr, extra = 4)
 ```
+```{r}
+library(janitor)
+compare_df_cols(train_df,valid_df)
+valid_df$TARGET <- as.factor(valid_df$TARGET)
+```
 
 ```{r}
-#Confusion matricies
-
+#Confusion matrices
 class_tr_train_predict <- predict(class_tr, train_df_balanced,
                                   type = "class")
 confusionMatrix(class_tr_train_predict, train_df_balanced$TARGET,
@@ -102,29 +108,67 @@ confusionMatrix(class_tr_train_predict, train_df_balanced$TARGET,
 ```{r}
 class_tr_valid_predict <- predict(class_tr, valid_df,
                                   type = "class")
+
 confusionMatrix(class_tr_valid_predict, valid_df$TARGET,
                 positive = "1")
 ```
 
 ```{r}
 #Probabilities
-
 class_tr_valid_predict_prob <- predict(class_tr, valid_df,
                                        type = "prob")
-
 head(class_tr_valid_predict_prob)
 ```
 
 ```{r}
-# Implementing new record
-
+# Implementing new records
 new_record_class <- data.frame(CNT_CHILDREN = 0,
                                AMT_INCOME_TOTAL = 180000,
                                AMT_CREDIT = 383760, 
                                AMT_ANNUITY = 40428, 
                                AMT_GOODS_PRICE = 360000, 
                                DAYS_EMPLOYED = -1304)
+class_tr1 <- predict(class_tr, newdata = new_record_class)
+class_tr1
 
-class_tr <- predict(class_tr, newdata = new_record_class)
-class_tr
+
+new_record_class2 <- data.frame(CNT_CHILDREN = 0,
+                               AMT_INCOME_TOTAL = 292500,
+                               AMT_CREDIT = 675000, 
+                               AMT_ANNUITY = 24376.5, 
+                               AMT_GOODS_PRICE = 675000, 
+                               DAYS_EMPLOYED = -1548)
+class_tr2 <- predict(class_tr, newdata = new_record_class2)
+class_tr2
+
+new_record_class3 <- data.frame(CNT_CHILDREN = 0,
+                               AMT_INCOME_TOTAL = 157500,
+                               AMT_CREDIT = 761067, 
+                               AMT_ANNUITY = 33655.5, 
+                               AMT_GOODS_PRICE = 657000, 
+                               DAYS_EMPLOYED = -2124)
+class_tr3 <- predict(class_tr, newdata = new_record_class3)
+class_tr3
+
+new_record_class4 <- data.frame(CNT_CHILDREN = 0,
+                               AMT_INCOME_TOTAL = 90000,
+                               AMT_CREDIT = 67500, 
+                               AMT_ANNUITY = 7047, 
+                               AMT_GOODS_PRICE = 67500, 
+                               DAYS_EMPLOYED = 365243)
+class_tr4 <- predict(class_tr, newdata = new_record_class4)
+class_tr4
+
+new_record_class5 <- data.frame(CNT_CHILDREN = 3,
+                               AMT_INCOME_TOTAL = 135000,
+                               AMT_CREDIT = 301464, 
+                               AMT_ANNUITY = 20277, 
+                               AMT_GOODS_PRICE = 238500, 
+                               DAYS_EMPLOYED = -989)
+class_tr5 <- predict(class_tr, newdata = new_record_class5)
+class_tr5
 ```
+
+# Final Model
+
+As you can see, we have 5 predictions, one for each of our new records. We think our model is solid and accurate with it's predictions. It's also very informative and allows us to make good recommendations to Stark Enterprises. 
