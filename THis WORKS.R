@@ -1,0 +1,178 @@
+---
+  title: "Project Problem 2 - Final"
+output: html_document
+---
+  
+  ```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(rpart)
+library(rpart.plot)
+library(forecast)
+library(tidyr)
+library(caret)
+library(ROSE)
+```
+
+```{r}
+cred <- read.csv("credit_8.csv", header = TRUE)
+names(cred)
+```
+
+```{r}
+cred <- drop_na(cred)
+```
+
+```{r}
+head(cred,10)
+str(cred)
+```
+
+```{r}
+# Choosing to only keep columns that seem like they're good predictors
+cred <- cred[ , c(3, 8:12, 19)]
+names(cred)
+```
+
+```{r}
+cred$cat_TARGET <- ifelse(cred$TARGET <= mean(cred$TARGET, na.rm = TRUE), 0, 1)
+```
+
+```{r}
+set.seed(1331)
+```
+
+```{r}
+train_index <-sample(1:nrow(cred), 0.6*nrow(cred))
+valid_index <-setdiff(1:nrow(cred), train_index)
+```
+
+```{r}
+train_df <- cred[train_index, ]
+valid_df <- cred[valid_index, ]
+
+```
+
+```{r}
+nrow(train_df)
+nrow(valid_df)
+```
+
+```{r}
+#Balancing data
+train_df$TARGET <- as.factor(train_df$TARGET)
+train_df_balanced <- ROSE(TARGET ~  CNT_CHILDREN 
+                          + AMT_INCOME_TOTAL + AMT_CREDIT 
+                          + AMT_ANNUITY 
+                          + AMT_GOODS_PRICE 
+                          + DAYS_EMPLOYED,
+                          data = train_df, seed = 1331)$data
+
+valid_df$TARGET <- as.factor(valid_df$TARGET)
+valid_df_balanced <- ROSE(TARGET ~  CNT_CHILDREN 
+                          + AMT_INCOME_TOTAL + AMT_CREDIT 
+                          + AMT_ANNUITY 
+                          + AMT_GOODS_PRICE 
+                          + DAYS_EMPLOYED,
+                          data = valid_df, seed = 1331)$data
+
+```
+
+```{r}
+table(train_df_balanced$TARGET)
+```
+
+```{r}
+#Classification tree
+class_tr <- rpart(TARGET ~ CNT_CHILDREN 
+                  + AMT_INCOME_TOTAL + AMT_CREDIT 
+                  + AMT_ANNUITY 
+                  + AMT_GOODS_PRICE 
+                  + DAYS_EMPLOYED,
+                  data = train_df_balanced, method = "class", maxdepth = 20)
+prp(class_tr)
+```
+```{r}
+rpart.plot(class_tr, type = 5)
+rpart.rules(class_tr, extra = 4)
+```
+
+```{r}
+#Confusion matricies
+
+class_tr_train_predict <- predict(class_tr, train_df_balanced,
+                                  type = "class")
+confusionMatrix(class_tr_train_predict, train_df_balanced$TARGET,
+                positive = "1")
+```
+```{r}
+##OG
+class_tr_valid_predict <- predict(class_tr, valid_df,
+                                  type = "class")
+confusionMatrix(class_tr_valid_predict, valid_df$TARGET,
+                positive = "1")
+
+as.numeric(unlist(valid_df$TARGET)
+           
+
+```
+
+```{r}
+#Probabilities
+
+class_tr_valid_predict_prob <- predict(class_tr, valid_df,
+                                       type = "prob")
+
+head(class_tr_valid_predict_prob)
+```
+
+```{r}
+# Implementing new record
+
+new_record_class <- data.frame(CNT_CHILDREN = 0,
+                               AMT_INCOME_TOTAL = 180000,
+                               AMT_CREDIT = 383760, 
+                               AMT_ANNUITY = 40428, 
+                               AMT_GOODS_PRICE = 360000, 
+                               DAYS_EMPLOYED = -1304)
+
+class_tr <- predict(class_tr, newdata = new_record_class)
+class_tr
+```
+# new_record_class2 <- data.frame(CNT_CHILDREN = 0,
+#                                 AMT_INCOME_TOTAL = 292500,
+#                                 AMT_CREDIT = 675000, 
+#                                 AMT_ANNUITY = 24376.5, 
+#                                 AMT_GOODS_PRICE = 675000, 
+#                                 DAYS_EMPLOYED = -1548)
+# class_tr2 <- predict(class_tr, newdata = new_record_class2)
+# class_tr2
+# 
+# new_record_class3 <- data.frame(CNT_CHILDREN = 0,
+#                                 AMT_INCOME_TOTAL = 157500,
+#                                 AMT_CREDIT = 761067, 
+#                                 AMT_ANNUITY = 33655.5, 
+#                                 AMT_GOODS_PRICE = 657000, 
+#                                 DAYS_EMPLOYED = -2124)
+# class_tr3 <- predict(class_tr, newdata = new_record_class3)
+# class_tr3
+# 
+# new_record_class4 <- data.frame(CNT_CHILDREN = 0,
+#                                 AMT_INCOME_TOTAL = 90000,
+#                                 AMT_CREDIT = 67500, 
+#                                 AMT_ANNUITY = 7047, 
+#                                 AMT_GOODS_PRICE = 67500, 
+#                                 DAYS_EMPLOYED = 365243)
+# class_tr4 <- predict(class_tr, newdata = new_record_class4)
+# class_tr4
+# 
+# new_record_class5 <- data.frame(CNT_CHILDREN = 3,
+#                                 AMT_INCOME_TOTAL = 135000,
+#                                 AMT_CREDIT = 301464, 
+#                                 AMT_ANNUITY = 20277, 
+#                                 AMT_GOODS_PRICE = 238500, 
+#                                 DAYS_EMPLOYED = -989)
+# class_tr5 <- predict(class_tr, newdata = new_record_class5)
+# class_tr5
