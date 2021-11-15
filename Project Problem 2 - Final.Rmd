@@ -1,16 +1,20 @@
 ---
-title: "Untitled"
+title: "Project Problem 2"
 output: html_document
 ---
 
-# Problem
-We are attempting to predict if a person is likely to have be a high risk when we lend them money.
+```{r}
+#Problem description, objective, & description
+print("We are attempting to predict if a person is likely to have be a high risk when we lend them money.
 
-We are analyzing a dataset with over 30,000 entries of previous customers and their risk level for Stark Enterprises. We are building a decision tree with that data and using it for our predictions. 
+We are analyzing a data set with over 30,000 entries of previous customers and their risk level for Stark Enterprises. We are building a decision tree with that data and using it for our predictions. 
 
-This data comprises dozens of variables about previous customers who applied for credit. We narrowed the variables down to a small handful we thought would be useful. We chose CNT_CHILDREN, AMT_INCOME_TOTAL, AMT_CREDIT, AMT_ANNUITY,    AMT_GOODS_PRICE, and DAYS_EMPLOYED as our variables. 
+This data comprises dozens of variables about previous customers who applied for credit. We narrowed the variables down to a small handful we thought would be useful. We chose CNT_CHILDREN, AMT_INCOME_TOTAL, AMT_CREDIT, AMT_ANNUITY,AMT_GOODS_PRICE, and DAYS_EMPLOYED as our variables.")
+```
+
 
 ```{r}
+#load in libraries
 library(rpart)
 library(rpart.plot)
 library(forecast)
@@ -20,15 +24,18 @@ library(ROSE)
 ```
 
 ```{r}
+#load in data and view column names
 cred <- read.csv("credit_8.csv", header = TRUE)
 names(cred)
 ```
 
 ```{r}
+#drop null values from dataset
 cred <- drop_na(cred)
 ```
 
 ```{r}
+#general exploration of data
 head(cred,10)
 str(cred)
 ```
@@ -40,24 +47,24 @@ names(cred)
 ```
 
 ```{r}
-cred$cat_TARGET <- ifelse(cred$TARGET <= mean(cred$TARGET, na.rm = TRUE), 0, 1)
-```
-
-```{r}
+#set seed
 set.seed(1331)
 ```
 
 ```{r}
+#training-validation split of 60-40
 train_index <-sample(1:nrow(cred), 0.6*nrow(cred))
 valid_index <-setdiff(1:nrow(cred), train_index)
 ```
 
 ```{r}
+#create data frames with new indices
 train_df <- cred[train_index, ]
 valid_df <- cred[valid_index, ]
 ```
 
 ```{r}
+#check split results
 nrow(train_df)
 nrow(valid_df)
 ```
@@ -74,6 +81,7 @@ train_df_balanced <- ROSE(TARGET ~  CNT_CHILDREN
 ```
 
 ```{r}
+#check balancing results
 table(train_df_balanced$TARGET)
 ```
 
@@ -88,17 +96,19 @@ class_tr <- rpart(TARGET ~ CNT_CHILDREN
 prp(class_tr)
 ```
 ```{r}
+#clean plot of classification tree
 rpart.plot(class_tr, type = 5)
 rpart.rules(class_tr, extra = 4)
 ```
 ```{r}
+#ensure data frames are the same classifications
 library(janitor)
-compare_df_cols(train_df,valid_df)
 valid_df$TARGET <- as.factor(valid_df$TARGET)
+compare_df_cols(train_df,valid_df)
 ```
 
 ```{r}
-#Confusion matrices
+#Confusion matrix - training dataframe
 class_tr_train_predict <- predict(class_tr, train_df_balanced,
                                   type = "class")
 confusionMatrix(class_tr_train_predict, train_df_balanced$TARGET,
@@ -106,6 +116,7 @@ confusionMatrix(class_tr_train_predict, train_df_balanced$TARGET,
 ```
 
 ```{r}
+#confusion matrix - validation dataframe
 class_tr_valid_predict <- predict(class_tr, valid_df,
                                   type = "class")
 
@@ -129,8 +140,6 @@ new_record_class <- data.frame(CNT_CHILDREN = 0,
                                AMT_GOODS_PRICE = 360000, 
                                DAYS_EMPLOYED = -1304)
 class_tr1 <- predict(class_tr, newdata = new_record_class)
-class_tr1
-
 
 new_record_class2 <- data.frame(CNT_CHILDREN = 0,
                                AMT_INCOME_TOTAL = 292500,
@@ -139,7 +148,6 @@ new_record_class2 <- data.frame(CNT_CHILDREN = 0,
                                AMT_GOODS_PRICE = 675000, 
                                DAYS_EMPLOYED = -1548)
 class_tr2 <- predict(class_tr, newdata = new_record_class2)
-class_tr2
 
 new_record_class3 <- data.frame(CNT_CHILDREN = 0,
                                AMT_INCOME_TOTAL = 157500,
@@ -148,7 +156,6 @@ new_record_class3 <- data.frame(CNT_CHILDREN = 0,
                                AMT_GOODS_PRICE = 657000, 
                                DAYS_EMPLOYED = -2124)
 class_tr3 <- predict(class_tr, newdata = new_record_class3)
-class_tr3
 
 new_record_class4 <- data.frame(CNT_CHILDREN = 0,
                                AMT_INCOME_TOTAL = 90000,
@@ -157,7 +164,6 @@ new_record_class4 <- data.frame(CNT_CHILDREN = 0,
                                AMT_GOODS_PRICE = 67500, 
                                DAYS_EMPLOYED = 365243)
 class_tr4 <- predict(class_tr, newdata = new_record_class4)
-class_tr4
 
 new_record_class5 <- data.frame(CNT_CHILDREN = 3,
                                AMT_INCOME_TOTAL = 135000,
@@ -166,9 +172,18 @@ new_record_class5 <- data.frame(CNT_CHILDREN = 3,
                                AMT_GOODS_PRICE = 238500, 
                                DAYS_EMPLOYED = -989)
 class_tr5 <- predict(class_tr, newdata = new_record_class5)
+
+class_tr1
+class_tr2
+class_tr3
+class_tr4
 class_tr5
 ```
 
-# Final Model
+```{r}
+#Final model discussion
+print("As you can see, we have 5 predictions, one for each of our new records. We think our model is solid and accurate with it's predictions. It's also very informative and allows us to make good analytical recommendations to Stark Enterprises.
+      
+The accuracy of the training model was 0.5728 and the validation model's accuracy was 0.6838. We are confident in these numbers as our training and validation models are close in their accuracies. While the accuracy is not the highest, we believe that it allows us to make realistic predictions for determining risk. At the very least, our accuracy is greater than .50 which allows us more confidence than merely guessing.") 
+```
 
-As you can see, we have 5 predictions, one for each of our new records. We think our model is solid and accurate with it's predictions. It's also very informative and allows us to make good recommendations to Stark Enterprises. 
