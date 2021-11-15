@@ -105,10 +105,12 @@ confusionMatrix(class_tr_train_predict, train_df_balanced$TARGET,
 ```
 
 ```{r}
-#class_tr_valid_predict <- predict(class_tr, valid_df,
-#                                  type = "class")
-#confusionMatrix(class_tr_valid_predict, valid_df$TARGET,
-#                positive = "1")
+as.numeric(unlist(valid_df$TARGET)
+
+class_tr_valid_predict <- predict(class_tr, valid_df,
+                                  type = "class")
+confusionMatrix(class_tr_valid_predict, valid_df$TARGET,
+                positive = "1")
 ```
 
 ```{r}
