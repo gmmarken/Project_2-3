@@ -13,7 +13,7 @@ head(cred,10)
 str(cred)
 
 # Choosing to only keep columns that seem like they're good predictors
-cred <- cred[ , c(3, 4, 6:17, 19, 22, 29)]
+cred <- cred[ , c(3, 8:12, 19)]
 names(cred)
 
 
