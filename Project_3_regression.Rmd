@@ -1,0 +1,146 @@
+---
+title: "Project Problem 3"
+output: html_notebook
+---
+
+```{r}
+#load in data
+library(rpart)
+library(rpart.plot)
+library(forecast)
+library(tidyr)
+library(ROSE)
+library(corrgram)
+library(ggplot2)
+library(ggpubr)
+library(forecast)
+house <- read.csv("house_8.csv", header = TRUE)
+names(house)
+```
+```{r}
+#examine data types
+str(house)
+```
+
+```{r}
+#remove empty values
+house_clean <- na.omit(house)
+```
+
+```{r}
+#trim down data to relevant values
+house_final <- house[, -c(2,4:6, 12, 14:15, 17:18, 22:23)]
+```
+
+```{r}
+#view final data types
+str(house_final)
+```
+```{r}
+set.seed(666)
+#Randomly sample the rows via their indices
+train_index <-sample(1:nrow(house_final), 0.6*nrow(house_final))
+valid_index <-setdiff(1:nrow(house_final), train_index)
+
+train_df <- house_final[train_index, ]
+valid_df <- house_final[valid_index, ]
+
+nrow(train_df)
+nrow(valid_df)
+
+corrgram(train_df)
+```
+
+```{r}
+price_model <- lm(price ~ ., data = train_df)
+summary(price_model)
+
+# model is significant because p < .01
+```
+
+```{r}
+price_model_pred <- predict(price_model, valid_df)
+accuracy(price_model_pred, valid_df$price)
+
+sd(valid_df$price)
+
+# has a high rsme which may not be good
+```
+
+```{r}
+# Create a new record
+house <-data.frame(X =1,
+                     Year =2014,
+                     bedrooms =3,
+                     bathrooms =1.75,
+                     sqft_living =1060,
+                     sqft_lot =38644,
+                     waterfront =0,
+                     grade =7,
+                     yr_built =1983,
+                     yr_renovated =0,
+                     zipcode =98077,
+                     sqft_living15 =1310,
+                     sqft_lot15 =11416)
+```
+
+```{r}
+# Create a new record
+house2 <-data.frame(X =2,
+                     Year =2014,
+                     bedrooms =2,
+                     bathrooms =1,
+                     sqft_living =1220,
+                     sqft_lot =5040,
+                     waterfront =0,
+                     grade =7,
+                     yr_built =1961,
+                     yr_renovated =0,
+                     zipcode =98117,
+                     sqft_living15 =1420,
+                     sqft_lot15 =5040)
+```
+
+```{r}
+# Create a new record
+house3 <-data.frame(X =3,
+                     Year =2014,
+                     bedrooms =3,
+                     bathrooms =1,
+                     sqft_living =1240,
+                     sqft_lot =7300,
+                     waterfront =0,
+                     grade =7,
+                     yr_built =1968,
+                     yr_renovated =0,
+                     zipcode =98033,
+                     sqft_living15 =1240,
+                     sqft_lot15 =8260)
+```
+
+```{r}
+# Predicting price of house 1
+house_pred <- predict(price_model, house)
+
+house_pred
+
+#the price prediction for house 1 is $195537.8
+```
+
+```{r}
+# Predicting price of house 2
+house2_pred <- predict(price_model, house2)
+
+house2_pred
+
+#the price prediction for house 2 is $325,152.3
+```
+
+```{r}
+# Predicting price of house 3
+house3_pred <- predict(price_model, house3)
+
+house3_pred
+
+#the price prediction for house 3 is $251454.8
+```
