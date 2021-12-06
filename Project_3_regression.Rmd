@@ -77,7 +77,7 @@ corrgram(train_df)
 price_model <- lm(price ~ ., data = train_df)
 summary(price_model)
 
-# model is significant because p < .01
+# We chose to implement a multiple linear regression for our model to predict King County home prices. We chose this because regression analysis has advantages in being able to determine relative impacts of multiple variables on the target variable. The model is significant because the p value: p < .01
 ```
 
 ```{r}
@@ -93,7 +93,7 @@ accuracy(price_model_pred2, train_df$price)
 
 sd(train_df$price)
 
-# RSME is lower in the validation data then the trainig data, which is a good indicator. 
+# RSME is lower in the validation data then the trainig data, which is a good indicator. Overall our model has suitable accuracy, is statistically significant, and can be validated by our RMSE values as well.
 ```
 
 ```{r}
