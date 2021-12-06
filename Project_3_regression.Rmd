@@ -4,6 +4,28 @@ output: html_notebook
 ---
 
 ```{r}
+#The problem we are working on is we are looking to predict house price data in King County
+```
+
+```{r}
+#Our objective is to build a model to accurately predict house prices for King Country homes for Jacob Kawalski and better help him understand the local #real estate market
+```
+
+```{r}
+#The data is a random sample of King County homes and their relevant sales data. This includes in total the ID, year, month, day, day of week, price, #number of bedrooms & bathrooms, the square footage of the home & lot, the number of floors of the house, whether or not the house has a waterfront  #view, the number of times the house has been viewed, the condition of the house, the grade of the house based on the King County rating scale, the #square footage of the house minus the basement & the basement itself, the year the house was built, the year the house was renovated, the zip code of #the house, the latitude and longitude of the house, and the living room area and lot size in 2015 to gauge renovations
+```
+
+```{r}
+#We focused on the year the house was sold, the price as our target variable, the number of bedrooms & bathrooms, the square footage of the house & lot, #whether or not the house is a waterfront property, the grade from the King County rating scale, the year the house was built & renovated (if relevant), #the zip code, and the square footage of the living room and lot in 2015 because we felt these variables would best predict the price of a home and #correlated well with price without being too many to cause concern of over fitting the data to the model
+```
+
+```{r}
+#With a low p value and an RSME which is lower in the validation set then it is in the training set, we believe that this regression model is providing us with fairly accurate predictions of the house values given our input variables.
+
+#The predictions range from just under $200,000 to over $325,000 which from our understanding is fairly accurate for the Seattle real estate market circa 2014-15.
+```
+
+```{r}
 #load in data
 library(rpart)
 library(rpart.plot)
@@ -63,8 +85,15 @@ price_model_pred <- predict(price_model, valid_df)
 accuracy(price_model_pred, valid_df$price)
 
 sd(valid_df$price)
+```
 
-# has a high rsme which may not be good
+```{r}
+price_model_pred2 <- predict(price_model, train_df)
+accuracy(price_model_pred2, train_df$price)
+
+sd(train_df$price)
+
+# RSME is lower in the validation data then the trainig data, which is a good indicator. 
 ```
 
 ```{r}
@@ -124,7 +153,7 @@ house_pred <- predict(price_model, house)
 
 house_pred
 
-#the price prediction for house 1 is $195537.8
+#the price prediction for house 1 is $195,537.8
 ```
 
 ```{r}
@@ -142,5 +171,7 @@ house3_pred <- predict(price_model, house3)
 
 house3_pred
 
-#the price prediction for house 3 is $251454.8
+#the price prediction for house 3 is $251,454.8
 ```
+
+
